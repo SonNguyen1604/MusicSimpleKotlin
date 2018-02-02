@@ -1,99 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+<layout
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <ImageView
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.nguyenngocsonc.musicsimplekotlin.viewmodels.AlbumViewModel"/>
+    </data>
+
+    <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:scaleType="centerCrop"
-        android:id="@+id/background_app"/>
+        >
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context="com.example.nguyenngocsonc.musicsimplekotlin.MainActivity">
-
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:id="@+id/recycler_view">
-
-        </android.support.v7.widget.RecyclerView>
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scaleType="centerCrop"
+            android:id="@+id/background_app"
+            bind:albumArt="@{viewModel.albumArt}"/>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:id="@+id/track_name_tv" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:id="@+id/track_time_tv" />
-            <SeekBar android:id="@+id/progressBarTime"
+            <android.support.v7.widget.RecyclerView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="invisible"
-                />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:id="@+id/recycler_view"
+                bind:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                bind:adapter="@{viewModel.adapter}"
+                bind:isAlbum="@{true}">
+
+            </android.support.v7.widget.RecyclerView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:id="@+id/track_name_tv" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:id="@+id/track_time_tv" />
+                <SeekBar android:id="@+id/progressBarTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="invisible"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:gravity="center_horizontal">
+
+                <ImageButton
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/previous"
+                    android:background="@null"
+                    android:scaleType="fitCenter"
+                    android:layout_marginRight="10dp"
+                    android:onClick="onPrevButtonClick"/>
+
+                <ImageButton
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/play"
+                    android:background="@null"
+                    android:scaleType="fitCenter"
+                    android:id="@+id/play_button"
+                    android:layout_marginRight="10dp"
+                    android:onClick="onStartButtonClick"/>
+
+                <ImageButton
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/next"
+                    android:maxHeight="10dp"
+                    android:maxWidth="10dp"
+                    android:background="@null"
+                    android:scaleType="fitCenter"
+                    android:onClick="onNextButtonClick"/>
+
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:id="@+id/track_list_view"
+                bind:layoutManager="android.support.v7.widget.LinearLayoutManager"
+                bind:adapter="@{viewModel.songAdapter}"
+                bind:isAlbum="@{false}">
+
+
+            </android.support.v7.widget.RecyclerView>
+
         </LinearLayout>
+    </FrameLayout>
+</layout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:gravity="center_horizontal">
 
-            <ImageButton
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/previous"
-                android:background="@null"
-                android:scaleType="fitCenter"
-                android:layout_marginRight="10dp"
-                android:onClick="onPrevButtonClick"/>
-
-            <ImageButton
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/play"
-                android:background="@null"
-                android:scaleType="fitCenter"
-                android:id="@+id/play_button"
-                android:layout_marginRight="10dp"
-                android:onClick="onStartButtonClick"/>
-
-            <ImageButton
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/next"
-                android:maxHeight="10dp"
-                android:maxWidth="10dp"
-                android:background="@null"
-                android:scaleType="fitCenter"
-                android:onClick="onNextButtonClick"/>
-
-        </LinearLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:id="@+id/track_list_view">
-
-        </android.support.v7.widget.RecyclerView>
-
-    </LinearLayout>
-</FrameLayout>
