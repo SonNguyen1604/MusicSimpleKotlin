@@ -5,6 +5,7 @@ import android.annotation.TargetApi
 import android.content.*
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.databinding.DataBindingUtil
 import android.os.*
 import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
@@ -28,12 +29,14 @@ import com.example.nguyenngocsonc.musicsimplekotlin.model.SongModel
 import com.example.nguyenngocsonc.musicsimplekotlin.service.PlayMusicService
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.support.annotation.RequiresApi
 import android.support.v7.widget.DividerItemDecoration
 import com.example.nguyenngocsonc.musicsimplekotlin.builder.BlurBuilder
+import com.example.nguyenngocsonc.musicsimplekotlin.data.local.AlbumLocalData
+import com.example.nguyenngocsonc.musicsimplekotlin.databinding.ActivityMainBinding
+import com.example.nguyenngocsonc.musicsimplekotlin.viewmodels.AlbumViewModel
 
 
 class MainActivity : AppCompatActivity(), CustomItemClickListener, CustomAlbumItemClickListener {
@@ -70,7 +73,7 @@ class MainActivity : AppCompatActivity(), CustomItemClickListener, CustomAlbumIt
             }
         })
 
-        timer = object: CountDownTimer(model.mSongDuration.toLong(), 1000) {
+        timer = object : CountDownTimer(model.mSongDuration.toLong(), 1000) {
             override fun onFinish() {
 
             }
@@ -102,18 +105,18 @@ class MainActivity : AppCompatActivity(), CustomItemClickListener, CustomAlbumIt
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onCustomAlbumItemClick(view: View, pos: Int) {
         var model = albumModelData[pos]
-        if(model.mAlbumArt!= null) {
+        if (model.mAlbumArt != null) {
             val bmImg = BitmapFactory.decodeFile(model.mAlbumArt)
             var blurBuilder = BlurBuilder()
             var imageBlur = blurBuilder.blur(this, bmImg)
 //            val background = BitmapDrawable(imageBlur)
             background_app.setImageBitmap(imageBlur)
-        }
-        else {
+        } else {
             background_app.setBackgroundColor(Color.parseColor("#3F51B5"))
         }
 
-        getSongInAlbum(model.mAlbumName)
+//        getSongInAlbum(model.mAlbumName)
+
     }
 
     private var allMusicList: ArrayList<String> = ArrayList()
@@ -128,86 +131,88 @@ class MainActivity : AppCompatActivity(), CustomItemClickListener, CustomAlbumIt
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
+//        setContentView(R.layout.activity_main)
         if (ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this@MainActivity,
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), PERMISSION_REQUEST_CODE)
         } else {
-            loadData()
+            val albumData = AlbumLocalData(this)
+            val binding: ActivityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+            binding.viewModel = AlbumViewModel(albumData, this)
+            binding.executePendingBindings()
         }
     }
 
     private fun loadData() {
-        var songCursor: Cursor? = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
-
-        while (songCursor != null && songCursor.moveToNext()) {
-            var songName = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
-            var songDuration = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
-            var songPath = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.DATA))
-            songModelData.add(SongModel(songName, songDuration, songPath))
-        }
-        songListAdapter = SongListAdapter(songModelData, applicationContext, this)
-
-        var layoutTrackManager = LinearLayoutManager(applicationContext)
-        track_list_view.layoutManager = layoutTrackManager
-        var dividerItemDecoration = DividerItemDecoration(track_list_view.context, layoutTrackManager.orientation)
-        track_list_view.adapter = songListAdapter
-        track_list_view.addItemDecoration(dividerItemDecoration)
-        getAlbum()
+//        var songCursor: Cursor? = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null)
+//
+//        while (songCursor != null && songCursor.moveToNext()) {
+//            var songName = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
+//            var songDuration = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
+//            var songPath = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.DATA))
+//            songModelData.add(SongModel(songName, songDuration, songPath))
+//        }
+//        songListAdapter = SongListAdapter(songModelData, applicationContext, this)
+//
+//        var layoutTrackManager = LinearLayoutManager(applicationContext)
+//        track_list_view.layoutManager = layoutTrackManager
+//        var dividerItemDecoration = DividerItemDecoration(track_list_view.context, layoutTrackManager.orientation)
+//        track_list_view.adapter = songListAdapter
+//        track_list_view.addItemDecoration(dividerItemDecoration)
+//        getAlbum()
 
     }
 
     private fun getSongInAlbum(albumName: String) {
 //        val columns = arrayOf(android.provider.MediaStore.Audio.Albums._ID, android.provider.MediaStore.Audio.Albums.ALBUM)
-        val where = android.provider.MediaStore.Audio.Media.ALBUM + "=?"
-        val whereVal = arrayOf(albumName)
-
-        var songCursor: Cursor? = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, where, whereVal, null)
-        songModelData.clear()
-        //Song
-        while (songCursor != null && songCursor.moveToNext()) {
-            var songName = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
-            var songDuration = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
-            var songPath = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.DATA))
-            songModelData.add(SongModel(songName, songDuration, songPath))
-        }
-        songListAdapter = SongListAdapter(songModelData, applicationContext, this)
-
-        var layoutTrackManager = LinearLayoutManager(applicationContext)
-        track_list_view.layoutManager = null
-        track_list_view.layoutManager = layoutTrackManager
-        var dividerItemDecoration = DividerItemDecoration(track_list_view.context, layoutTrackManager.orientation)
-        track_list_view.addItemDecoration(dividerItemDecoration)
-        track_list_view.adapter = songListAdapter
+//        val where = android.provider.MediaStore.Audio.Media.ALBUM + "=?"
+//        val whereVal = arrayOf(albumName)
+//
+//        var songCursor: Cursor? = contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, where, whereVal, null)
+//        songModelData.clear()
+//        //Song
+//        while (songCursor != null && songCursor.moveToNext()) {
+//            var songName = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
+//            var songDuration = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
+//            var songPath = songCursor.getString(songCursor.getColumnIndex(MediaStore.Audio.Media.DATA))
+//            songModelData.add(SongModel(songName, songDuration, songPath))
+//        }
+//        songListAdapter = SongListAdapter(songModelData, applicationContext, this)
+//
+//        var layoutTrackManager = LinearLayoutManager(applicationContext)
+//        track_list_view.layoutManager = null
+//        track_list_view.layoutManager = layoutTrackManager
+//        var dividerItemDecoration = DividerItemDecoration(track_list_view.context, layoutTrackManager.orientation)
+//        track_list_view.addItemDecoration(dividerItemDecoration)
+//        track_list_view.adapter = songListAdapter
     }
 
     private fun getAlbum() {
-        var albumCursor: Cursor? = contentResolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, null, null, null, null)
-
-        while (albumCursor != null && albumCursor.moveToNext()) {
-            var albumName = albumCursor.getString(albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM))
-            var albumArt = albumCursor.getString(albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART))
-
-            if(albumModelData.none { x -> x.mAlbumName == albumName }) {
-                albumModelData.add(AlbumModel(albumName, albumArt))
-            }
-        }
-
-        albumListAdapter = AlbumListAdapter(albumModelData, applicationContext, this)
-
-        val layoutManager: CarouselLayoutManager  = object: CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, true) {
-
-        }
-        recycler_view.setHasFixedSize(true)
-        layoutManager.setPostLayoutListener(object: CarouselZoomPostLayoutListener() {
-
-        })
-        recycler_view.addOnScrollListener(object: CenterScrollListener() {
-
-        })
-        recycler_view.layoutManager = layoutManager
-        recycler_view.adapter = albumListAdapter
+//        var albumCursor: Cursor? = contentResolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, null, null, null, null)
+//
+//        while (albumCursor != null && albumCursor.moveToNext()) {
+//            var albumName = albumCursor.getString(albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM))
+//            var albumArt = albumCursor.getString(albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART))
+//
+//            if(albumModelData.none { x -> x.mAlbumName == albumName }) {
+//                albumModelData.add(AlbumModel(albumName, albumArt))
+//            }
+//        }
+//
+//        albumListAdapter = AlbumListAdapter(albumModelData, applicationContext, this)
+//
+//        val layoutManager: CarouselLayoutManager  = object: CarouselLayoutManager(CarouselLayoutManager.HORIZONTAL, true) {
+//
+//        }
+//        recycler_view.setHasFixedSize(true)
+//        layoutManager.setPostLayoutListener(object: CarouselZoomPostLayoutListener() {
+//
+//        })
+//        recycler_view.addOnScrollListener(object: CenterScrollListener() {
+//
+//        })
+//        recycler_view.layoutManager = layoutManager
+//        recycler_view.adapter = albumListAdapter
     }
 
     private val musicConnection = object : ServiceConnection {
@@ -244,7 +249,7 @@ class MainActivity : AppCompatActivity(), CustomItemClickListener, CustomAlbumIt
     }
 
     fun onNextButtonClick(v: View) {
-        if(currentPos<songModelData.size - 1) {
+        if (currentPos < songModelData.size - 1) {
             musicSrv?.nextTrack()
             currentPos++
             var model = songModelData[currentPos]
@@ -253,7 +258,7 @@ class MainActivity : AppCompatActivity(), CustomItemClickListener, CustomAlbumIt
     }
 
     fun onPrevButtonClick(v: View) {
-        if(currentPos>0) {
+        if (currentPos > 0) {
             musicSrv?.prevTrack()
             currentPos--
             var model = songModelData[currentPos]

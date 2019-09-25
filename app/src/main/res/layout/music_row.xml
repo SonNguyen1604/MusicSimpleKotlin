@@ -1,33 +1,42 @@
-<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <data>
+        <variable
+            name="item"
+            type="com.example.nguyenngocsonc.musicsimplekotlin.model.SongModel"/>
+        <variable
+            name="viewModel"
+            type="com.example.nguyenngocsonc.musicsimplekotlin.viewmodels.AlbumViewModel"/>
+    </data>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="5dp"
-    android:layout_toRightOf="@id/al_img_view"
-    android:background="@android:color/transparent"
-    android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/song_name_tv"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="5dp"
-        android:text="Dummy Song Title"
-        android:textColor="#fff"
-        android:textSize="16dp" />
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@id/al_img_view"
+        android:background="@android:color/transparent"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/song_duration_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
-        android:text="3:00"
-        android:textColor="#fff" />
+        <TextView
+            android:id="@+id/song_name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="5dp"
+            android:text="@{item.MSongName}"
+            android:textColor="#000"
+            android:textSize="16dp" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/song_duration_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:text="@{item.MSongDuration}"
+            android:textColor="#000" />
+
+    </LinearLayout>
+</layout>
